@@ -13,8 +13,8 @@ updates:
         patterns:
           - "*"
 
-  # Maintain Python dependencies
-  - package-ecosystem: "pip"
+  # Maintain Python dependencies (uv.lock; see https://docs.astral.sh/uv/guides/integration/dependabot/)
+  - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
