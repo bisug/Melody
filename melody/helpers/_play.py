@@ -4,13 +4,12 @@
 
 
 import asyncio
-import ipaddress
-import socket
 from urllib.parse import urlparse
 
 from pyrogram import enums, errors, types
 
 from melody import anon, app, config, db, logger, queue, yt
+from melody.core.providers import resolve_public_addrs
 from melody.helpers import utils
 
 
@@ -26,35 +25,17 @@ async def _safe_stream_url(url: str) -> bool:
     host = parsed.hostname
     if not host:
         return False
-    if config.STREAM_HOSTS and host.lower() not in config.STREAM_HOSTS:
-        return False
-    if not config.STREAM_HOSTS:
+    if host.lower() not in config.STREAM_HOSTS:
+        # Empty allowlist disables M3U8 input.
         return False
 
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
     try:
-        infos = await asyncio.to_thread(
-            socket.getaddrinfo, host, port, 0, socket.SOCK_STREAM
-        )
+        addrs = await resolve_public_addrs(host, port)
     except Exception as ex:
         logger.warning("Stream URL host resolution failed for %r: %s", host, ex)
         return False
-
-    for info in infos:
-        try:
-            addr = ipaddress.ip_address(info[4][0])
-        except ValueError:
-            return False
-        if (
-            addr.is_private
-            or addr.is_loopback
-            or addr.is_link_local
-            or addr.is_reserved
-            or addr.is_multicast
-            or addr.is_unspecified
-        ):
-            return False
-    return True
+    return addrs is not None
 
 
 async def join_assistant(m: types.Message, lang_dict: dict) -> bool:

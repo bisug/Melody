@@ -49,21 +49,12 @@ class Inline:
         remove: bool = False,
     ) -> types.InlineKeyboardMarkup:
         keyboard = []
-        if status:
+        label = status or timer
+        if label:
             keyboard.append(
                 [
                     self._button(
-                        text=status,
-                        category="status",
-                        callback_data=f"controls status {chat_id}",
-                    )
-                ]
-            )
-        elif timer:
-            keyboard.append(
-                [
-                    self._button(
-                        text=timer,
+                        text=label,
                         category="status",
                         callback_data=f"controls status {chat_id}",
                     )

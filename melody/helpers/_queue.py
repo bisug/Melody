@@ -24,16 +24,11 @@ class Queue:
         return len(self.queues[chat_id])
 
     def check_item(self, chat_id: int, item_id: str) -> tuple[int, MediaItem | None]:
-        """Find an item by ID; (-1, None) if absent."""
-        pos, track = next(
-            (
-                (i, track)
-                for i, track in enumerate(list(self.queues[chat_id]))
-                if track.id == item_id
-            ),
-            (-1, None),
-        )
-        return pos, track
+        """Position and item for item_id; (-1, None) if absent."""
+        for pos, track in enumerate(self.queues[chat_id]):
+            if track.id == item_id:
+                return pos, track
+        return -1, None
 
     def force_add(
         self, chat_id: int, item: MediaItem, remove: int | bool = False

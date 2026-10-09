@@ -20,6 +20,31 @@ MAX_MEDIA_BYTES = 2 * 1024**3
 WATCH_BASE = "https://www.youtube.com/watch?v="
 
 
+def resolve_addrs(hostname: str, port: int) -> list[str]:
+    """Sync DNS lookup returning raw address strings (thread target, testable)."""
+    infos = socket.getaddrinfo(hostname, port, 0, socket.SOCK_STREAM)
+    return [info[4][0] for info in infos]
+
+
+def is_public_ip(raw: str) -> bool:
+    """False for private/loopback/link-local/reserved/multicast/unspecified."""
+    try:
+        addr = ipaddress.ip_address(raw)
+    except ValueError:
+        return False
+    # is_global alone would accept multicast; keep the old six-flag posture.
+    return addr.is_global and not addr.is_multicast
+
+
+async def resolve_public_addrs(hostname: str, port: int) -> list[str] | None:
+    """Public resolved addresses, or None on DNS failure."""
+    try:
+        raw = await asyncio.to_thread(resolve_addrs, hostname, port)
+    except OSError:
+        return None
+    return [ip for ip in raw if is_public_ip(ip)] or None
+
+
 async def _public_url(url: str) -> bool:
     """Reject provider URLs that resolve to non-public addresses."""
     try:
@@ -27,22 +52,8 @@ async def _public_url(url: str) -> bool:
         if parsed.scheme not in ("http", "https") or not parsed.hostname:
             return False
         port = parsed.port or (443 if parsed.scheme == "https" else 80)
-        infos = await asyncio.to_thread(
-            socket.getaddrinfo, parsed.hostname, port, 0, socket.SOCK_STREAM
-        )
-        for info in infos:
-            addr = ipaddress.ip_address(info[4][0])
-            if (
-                addr.is_private
-                or addr.is_loopback
-                or addr.is_link_local
-                or addr.is_reserved
-                or addr.is_multicast
-                or addr.is_unspecified
-            ):
-                return False
-        return True
-    except (OSError, ValueError):
+        return await resolve_public_addrs(parsed.hostname, port) is not None
+    except ValueError:
         return False
 
 
