@@ -74,7 +74,7 @@ class MongoDB:
     async def remove_call(self, chat_id: int) -> None:
         self.active_calls.pop(chat_id, None)
 
-    async def playing(self, chat_id: int, paused: bool = None) -> bool | None:
+    async def playing(self, chat_id: int, paused: bool | None = None) -> bool | None:
         if paused is not None:
             self.active_calls[chat_id] = int(not paused)
         return bool(self.active_calls.get(chat_id, 0))

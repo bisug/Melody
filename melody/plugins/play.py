@@ -60,7 +60,7 @@ async def play_hndlr(
     force: bool = False,
     m3u8: bool = False,
     video: bool = False,
-    url: str = None,
+    url: str | None = None,
     shuffle: bool = False,
 ) -> None:
     sent = await m.reply_text(m.lang["play_searching"])

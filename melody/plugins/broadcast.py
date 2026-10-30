@@ -3,8 +3,8 @@
 # This file is part of Melody
 
 
-import os
 import asyncio
+from pathlib import Path
 
 from pyrogram import errors, filters, types
 
@@ -76,7 +76,6 @@ async def _broadcast(_, message: types.Message):
             document="errors.txt",
             caption=text,
         )
-        try: os.remove("errors.txt")
-        except Exception: pass
+        Path("errors.txt").unlink(missing_ok=True)
 
     await sent.edit_text(text)

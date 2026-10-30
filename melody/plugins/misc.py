@@ -3,7 +3,6 @@
 # This file is part of Melody
 
 
-import time
 import asyncio
 from contextlib import suppress
 

@@ -44,8 +44,8 @@ class Inline:
     def controls(
         self,
         chat_id: int,
-        status: str = None,
-        timer: str = None,
+        status: str | None = None,
+        timer: str | None = None,
         remove: bool = False,
     ) -> types.InlineKeyboardMarkup:
         keyboard = []

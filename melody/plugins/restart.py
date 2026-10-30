@@ -4,8 +4,9 @@
 
 
 import os
-import sys
+from pathlib import Path
 import shutil
+import sys
 
 from pyrogram import filters, types
 
@@ -53,7 +54,6 @@ async def _restart(_, m: types.Message):
     await sent.edit_text(m.lang["restarted"])
     await stop()
 
-    try: os.remove("log.txt")
-    except Exception: pass
+    Path("log.txt").unlink(missing_ok=True)
 
     os.execl(sys.executable, sys.executable, "-m", "melody")
