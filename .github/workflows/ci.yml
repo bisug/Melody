@@ -45,7 +45,7 @@ jobs:
       - name: Check markdown links
         uses: lycheeverse/lychee-action@v2.9.0
         with:
-          args: --no-progress --exclude '^mailto:' 'README.md' 'wiki/*.md'
+          args: --no-progress --exclude '^mailto:' --exclude '^https?://img\.shields\.io/' 'README.md' 'wiki/*.md'
 
   docker-build:
     runs-on: ubuntu-latest
