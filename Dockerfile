@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Stage 1: deps — resolve and install Python dependencies with uv ----
-FROM python:3.14-slim AS deps
+FROM python:3.15-slim AS deps
 COPY --from=ghcr.io/astral-sh/uv:0.12.24 /uv /uvx /usr/local/bin/
 
 WORKDIR /app
@@ -29,7 +29,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     && .venv/bin/python -c 'import pytgcalls, yt_dlp; print("deps import OK")'
 
 # ---- Stage 2: runtime — only what the bot needs to run ----
-FROM python:3.14-slim AS runtime
+FROM python:3.15-slim AS runtime
 
 # Non-root user first so later COPYs can set ownership directly (no chown -R
 # rewrite of the ~260MB venv layer at the end).
